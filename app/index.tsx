@@ -75,17 +75,17 @@ export default function HomeScreen() {
   const carouselItems = [
     {
       id: 'slide-1',
-      title: 'User Profile Details',
+      title: '',
       text: `To optimize your experience and provide personalized recommendations, we collect your age, weight, and height. This helps us tailor our services to better suit your needs and preferences.`,
     },
     {
       id: 'slide-2',
-      title: 'Disclaimer',
+      title: '',
       text: `Disclaimer: Any information provided is for educational purposes only and should not be considered medical or professional advice. Always consult a qualified professional for health-related decisions.`,
     },
     {
       id: 'slide-3',
-      title: 'Accuracy Notice',
+      title: '',
       text: `Measurements may not always be 100% accurate, and slight variations can occur based on different factors. We recommend using precise measuring tools and consulting experts for the most reliable data.`,
     },
   ];
@@ -99,9 +99,6 @@ export default function HomeScreen() {
   const renderDetailBox = ({ item }: { item: typeof carouselItems[0] }) => {
     return (
       <View style={styles.carouselDetailBox}>
-        <ThemedText type="defaultSemiBold" style={styles.detailTitle}>
-          {item.title}
-        </ThemedText>
         <ThemedText style={styles.carouselText}>{item.text}</ThemedText>
       </View>
     );

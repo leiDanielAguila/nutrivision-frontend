@@ -76,12 +76,12 @@ export default function HomeScreen() {
     {
       id: 'slide-1',
       title: '',
-      text: `To optimize your experience and provide personalized recommendations, we collect your age, weight, and height. This helps us tailor our services to better suit your needs and preferences.`,
+      text: `DISCLAIMER: Any information provided is for educational purposes only and should not be considered medical or professional advice. Always consult a qualified professional for health-related decisions.`,
     },
     {
       id: 'slide-2',
       title: '',
-      text: `Disclaimer: Any information provided is for educational purposes only and should not be considered medical or professional advice. Always consult a qualified professional for health-related decisions.`,
+      text: `To optimize your experience and provide personalized recommendations, we collect your age, weight, and height. This helps us tailor our services to better suit your needs and preferences.`,
     },
     {
       id: 'slide-3',
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   },
   image: {
     position: 'absolute',
-    top: 0,
+    top: -15,
     left: 0,
     width: 200,
     height: 200,
@@ -349,9 +349,9 @@ const styles = StyleSheet.create({
   },
   carouselText: {
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 22,
     color: '#333',
-    textAlign: 'justify',
+    textAlign: 'left',
   },
 
 
@@ -531,8 +531,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkMark: {
-    fontSize: 30,
-    color: '#385802',
+    fontSize: 25,
+    color: '#9AB106',
     fontWeight: 'bold',
   },
 });

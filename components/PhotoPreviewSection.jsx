@@ -1,3 +1,4 @@
+// Theres a error in ios deleting pics
 import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, SafeAreaView, Image, StyleSheet, View, Dimensions, Platform } from 'react-native';

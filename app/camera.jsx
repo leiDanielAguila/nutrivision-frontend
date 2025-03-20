@@ -1,10 +1,25 @@
-import PhotoPreviewSection from '@/components/PhotoPreviewSection';
-import { AntDesign, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import React, { useRef, useState, useEffect } from 'react';
+import { 
+  AntDesign, 
+  Ionicons 
+} from '@expo/vector-icons';
+import { 
+  Button, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  Alert, 
+  Switch, 
+  Image, 
+  ScrollView,
+  Platform 
+} from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRef, useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Switch, Image, ScrollView } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImageManipulator from 'expo-image-manipulator';
+
+import PhotoPreviewSection from '@/components/PhotoPreviewSection';
 
 export default function Camera() {
   const [facing, setFacing] = useState('back');
@@ -39,16 +54,32 @@ export default function Camera() {
         mediaType: 'photo',
         sortBy: ['creationTime']
       });
-      
-      // We'll assume the most recent 3 are from our app - in a real app
-      // you'd want to filter based on some criteria or store references
-      const recentPhotos = assets.slice(0, 3).map(asset => ({
-        uri: asset.uri,
-        type: Math.random() > 0.5 ? 'label' : 'fruit', // Just for mock data
-        orientation: Math.random() > 0.5 ? 'vertical' : 'horizontal' // Just for mock data
-      }));
-      
-      setCapturedPhotos(recentPhotos);
+
+      // Convert iOS "ph://" URIs to local file URIs
+      const recentPhotos = [];
+      for (const asset of assets) {
+        let uriToUse = asset.uri;
+        // On iOS, convert ph:// to local file://
+        if (Platform.OS === 'ios' && uriToUse.startsWith('ph://')) {
+          try {
+            const info = await MediaLibrary.getAssetInfoAsync(asset);
+            if (info.localUri) {
+              uriToUse = info.localUri;
+            }
+          } catch (error) {
+            console.error('Error getting localUri for asset:', error);
+          }
+        }
+        // Just for mock data: random type/orientation
+        recentPhotos.push({
+          uri: uriToUse,
+          type: Math.random() > 0.5 ? 'label' : 'fruit',
+          orientation: Math.random() > 0.5 ? 'vertical' : 'horizontal'
+        });
+      }
+
+      // Assume the most recent 3 are from our app
+      setCapturedPhotos(recentPhotos.slice(0, 3));
     } catch (error) {
       console.error('Error loading recent photos:', error);
     }
@@ -78,7 +109,7 @@ export default function Camera() {
   }
 
   function toggleMode() {
-    setIsLabelMode(previous => !previous);
+    setIsLabelMode((previous) => !previous);
   }
 
   const handleTakePhoto = async () => {
@@ -134,7 +165,7 @@ export default function Camera() {
         await MediaLibrary.createAssetAsync(uriToSave);
         
         // Add to capturedPhotos state for thumbnail display
-        setCapturedPhotos(prev => [photo, ...prev.slice(0, 2)]);
+        setCapturedPhotos((prev) => [photo, ...prev.slice(0, 2)]);
         
         Alert.alert('Success', 'Photo saved to your gallery!');
         setPhoto(null); // Go back to camera view
@@ -148,7 +179,7 @@ export default function Camera() {
   const handleRetakePhoto = () => setPhoto(null);
   
   const handleDeletePhoto = (index) => {
-    setCapturedPhotos(prev => prev.filter((_, i) => i !== index));
+    setCapturedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (photo) {
@@ -175,10 +206,12 @@ export default function Camera() {
               >
                 <AntDesign name="close" size={16} color="white" />
               </TouchableOpacity>
-              <View style={[
-                styles.thumbnailIndicator,
-                item.type === 'label' ? styles.labelIndicator : styles.fruitIndicator
-              ]} />
+              <View
+                style={[
+                  styles.thumbnailIndicator,
+                  item.type === 'label' ? styles.labelIndicator : styles.fruitIndicator
+                ]}
+              />
             </View>
           ))}
           <TouchableOpacity style={styles.addButton}>
@@ -209,11 +242,13 @@ export default function Camera() {
         </TouchableOpacity>
         
         <View style={styles.overlay}>
-          <View style={[
-            styles.guideBox, 
-            boxOrientation === 'horizontal' && styles.horizontalGuideBox,
-            isLabelMode ? styles.labelGuideBox : styles.fruitGuideBox
-          ]} />
+          <View
+            style={[
+              styles.guideBox, 
+              boxOrientation === 'horizontal' && styles.horizontalGuideBox,
+              isLabelMode ? styles.labelGuideBox : styles.fruitGuideBox
+            ]}
+          />
         </View>
         
         {/* Camera controls */}
@@ -242,12 +277,12 @@ const styles = StyleSheet.create({
   },
   thumbnailsRow: {
     height: 80,
-    backgroundColor: '#FFFFFF', // Changed to white background
+    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     paddingHorizontal: 5,
     zIndex: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE', // Light border for separation
+    borderBottomColor: '#EEEEEE',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -268,7 +303,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#DDDDDD', // Lighter border for thumbnails against white background
+    borderColor: '#DDDDDD',
   },
   deleteButton: {
     position: 'absolute',
@@ -298,7 +333,7 @@ const styles = StyleSheet.create({
   addButton: {
     width: 60,
     height: 60,
-    backgroundColor: '#F5F5F5', // Slightly off-white for the add button
+    backgroundColor: '#F5F5F5',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',

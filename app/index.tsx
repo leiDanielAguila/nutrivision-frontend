@@ -15,16 +15,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import Carousel from 'react-native-reanimated-carousel';
 
-
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 
 export default function HomeScreen() {
   // ======== AGE STATE ========
   const [age, setAge] = useState<number>(25);
   const [inputValue, setInputValue] = useState<string>('25');
   const [inputError, setInputError] = useState(false);
-
 
   const handleAgeChange = (text: string) => {
     setInputValue(text);
@@ -39,7 +36,6 @@ export default function HomeScreen() {
     setInputError(true);
   };
 
-
   const handleIncrement = () => {
     setAge(prev => {
       const newAge = prev + 1;
@@ -47,7 +43,6 @@ export default function HomeScreen() {
       return newAge;
     });
   };
-
 
   const handleDecrement = () => {
     setAge(prev => {
@@ -57,18 +52,15 @@ export default function HomeScreen() {
     });
   };
 
-
   // ======== WEIGHT STATE ========
   const [weightValue, setWeightValue] = useState<string>('54.2');
   const [isKg, setIsKg] = useState(true); // true => kg, false => lb
   const toggleWeightUnit = () => setIsKg(prev => !prev);
 
-
   // ======== HEIGHT STATE ========
   const [heightValue, setHeightValue] = useState<string>("5'7");
   const [isFt, setIsFt] = useState(true); // true => ft, false => cm
   const toggleHeightUnit = () => setIsFt(prev => !prev);
-
 
   // ======== CAROUSEL DATA ========
   // Each slide is an entire "detail box" that will animate horizontally
@@ -90,12 +82,10 @@ export default function HomeScreen() {
     },
   ];
 
-
   // Track the active slide index for pagination
   const [activeIndex, setActiveIndex] = useState(0);
 
-
-  // Render each entire detail box as a carousel item
+  // Render each entire carousel detail box
   const renderDetailBox = ({ item }: { item: typeof carouselItems[0] }) => {
     return (
       <View style={styles.carouselDetailBox}>
@@ -104,13 +94,11 @@ export default function HomeScreen() {
     );
   };
 
-
   // This is where you handle the "check" action, e.g. navigate to next page
   const handleCheck = () => {
     console.log('Check button pressed! Navigate or confirm input here.');
     // e.g., navigation.navigate('NextScreen');
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -124,18 +112,23 @@ export default function HomeScreen() {
             accessibilityLabel="NutriVision logo"
           />
 
+          {/* ===== NEW PROFILE BOX ===== */}
+          <View style={styles.profileBox}>
+            <ThemedText style={styles.profileBoxText}>
+              User <ThemedText style={styles.profileText}>Profile</ThemedText> Details
+            </ThemedText>
+          </View>
 
           {/* ========== CAROUSEL (ANIMATED DETAIL BOXES) ========== */}
           <View style={styles.carouselContainer}>
             <Carousel
               data={carouselItems}
               renderItem={renderDetailBox}
-              width={SCREEN_WIDTH * 0.9}  // each box ~90% screen width
-              height={160}               // slightly taller than the age container
+              width={SCREEN_WIDTH - 20} // same width as the age/weight/height boxes
+              height={160}
               style={{ alignSelf: 'center' }}
               onSnapToItem={index => setActiveIndex(index)}
             />
-
 
             {/* Pagination Dots */}
             <View style={styles.paginationContainer}>
@@ -151,7 +144,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-
           {/* =============== AGE CONTAINER =============== */}
           <View style={styles.ageContainer}>
             <View style={styles.leftColumn}>
@@ -166,17 +158,12 @@ export default function HomeScreen() {
               </View>
             </View>
 
-
             <View style={styles.rightColumn}>
               <View style={styles.formContainer}>
                 <View style={styles.counterWrapper}>
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={handleDecrement}
-                  >
+                  <TouchableOpacity style={styles.counterButton} onPress={handleDecrement}>
                     <ThemedText style={styles.counterText}>{'<'}</ThemedText>
                   </TouchableOpacity>
-
 
                   <TextInput
                     style={[styles.ageInput, inputError && styles.inputError]}
@@ -193,17 +180,11 @@ export default function HomeScreen() {
                     }}
                   />
 
-
-                  <TouchableOpacity
-                    style={styles.counterButton}
-                    onPress={handleIncrement}
-                  >
+                  <TouchableOpacity style={styles.counterButton} onPress={handleIncrement}>
                     <ThemedText style={styles.counterText}>{'>'}</ThemedText>
                   </TouchableOpacity>
                 </View>
 
-
-                {/* Error text if invalid */}
                 {inputError && (
                   <ThemedText style={styles.errorText}>
                     Please enter numbers only (18-999)
@@ -213,7 +194,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-
           {/* =============== WEIGHT CONTAINER =============== */}
           <View style={styles.weightContainer}>
             <View style={styles.leftColumn}>
@@ -222,12 +202,10 @@ export default function HomeScreen() {
               </View>
               <View style={styles.bottomLeft}>
                 <ThemedText style={styles.ageSubtitle}>
-                  Weight influences nutrient needs by affecting metabolism
-                  and nutrient absorption.
+                  Weight influences nutrient needs by affecting metabolism and nutrient absorption.
                 </ThemedText>
               </View>
             </View>
-
 
             <View style={styles.rightColumn}>
               <View style={styles.formContainer}>
@@ -239,19 +217,14 @@ export default function HomeScreen() {
                   onChangeText={setWeightValue}
                 />
 
-
                 <View style={styles.switchRow}>
                   <ThemedText style={styles.switchLabel}>kg</ThemedText>
-                  <Switch
-                    value={!isKg}
-                    onValueChange={toggleWeightUnit}
-                  />
+                  <Switch value={!isKg} onValueChange={toggleWeightUnit} />
                   <ThemedText style={styles.switchLabel}>lb</ThemedText>
                 </View>
               </View>
             </View>
           </View>
-
 
           {/* =============== HEIGHT CONTAINER =============== */}
           <View style={styles.heightContainer}>
@@ -261,12 +234,10 @@ export default function HomeScreen() {
               </View>
               <View style={styles.bottomLeft}>
                 <ThemedText style={styles.ageSubtitle}>
-                  Height affects nutrient needs, growth, and overall
-                  development requirements.
+                  Height affects nutrient needs, growth, and overall development requirements.
                 </ThemedText>
               </View>
             </View>
-
 
             <View style={styles.rightColumn}>
               <View style={styles.formContainer}>
@@ -278,20 +249,15 @@ export default function HomeScreen() {
                   onChangeText={setHeightValue}
                 />
 
-
                 <View style={styles.switchRow}>
                   <ThemedText style={styles.switchLabel}>ft</ThemedText>
-                  <Switch
-                    value={!isFt}
-                    onValueChange={toggleHeightUnit}
-                  />
+                  <Switch value={!isFt} onValueChange={toggleHeightUnit} />
                   <ThemedText style={styles.switchLabel}>cm</ThemedText>
                 </View>
               </View>
             </View>
           </View>
         </ScrollView>
-
 
         {/*
           ====== Floating Circle Button with a Check Mark ======
@@ -305,8 +271,6 @@ export default function HomeScreen() {
   );
 }
 
-
-/* ===================== STYLES ===================== */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -314,29 +278,26 @@ const styles = StyleSheet.create({
   image: {
     position: 'absolute',
     top: -15,
-    left: 0,
+    left: -7,
     width: 200,
     height: 200,
     resizeMode: 'contain',
   },
-
-
   carouselContainer: {
-    marginTop: 140,
+    marginTop: 20,
     alignItems: 'center',
   },
   carouselDetailBox: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
+    
     marginHorizontal: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 4,
-
-
     flex: 1,
     justifyContent: 'center',
   },
@@ -353,9 +314,6 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'left',
   },
-
-
-  // Pagination container (dots row)
   paginationContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -367,12 +325,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginHorizontal: 3,
   },
-
-
   /* ========== AGE/WEIGHT/HEIGHT BOXES ========== */
   ageContainer: {
     marginTop: 20,
-    marginHorizontal: 10,
+    width: SCREEN_WIDTH - 20, // same as carousel width
+    alignSelf: 'center',
     flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -386,7 +343,8 @@ const styles = StyleSheet.create({
   },
   weightContainer: {
     marginTop: 20,
-    marginHorizontal: 10,
+    width: SCREEN_WIDTH - 20,
+    alignSelf: 'center',
     flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -400,7 +358,8 @@ const styles = StyleSheet.create({
   },
   heightContainer: {
     marginTop: 20,
-    marginHorizontal: 10,
+    width: SCREEN_WIDTH - 20,
+    alignSelf: 'center',
     flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -412,8 +371,6 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
-
-
   leftColumn: {
     flex: 2,
     paddingRight: 10,
@@ -435,8 +392,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-
   /* Title & Subtitle for Age/Weight/Height sections */
   ageTitle: {
     fontSize: 24,
@@ -449,8 +404,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: '#666',
   },
-
-
   /* AGE Buttons & Input Row */
   counterWrapper: {
     flexDirection: 'row',
@@ -486,8 +439,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#ff4444',
   },
-
-
   /* WEIGHT & HEIGHT Input + Switch */
   weightInput: {
     height: 36,
@@ -512,8 +463,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-
-
   /*
     ========== FLOATING CHECK BUTTON ==========
     A circular button with dark gray background (#333)
@@ -535,7 +484,29 @@ const styles = StyleSheet.create({
     color: '#9AB106',
     fontWeight: 'bold',
   },
+  /* ===== NEW PROFILE BOX STYLES ===== */
+  profileBox: {
+    marginTop: 120, // Adjust below the image as needed
+    marginLeft: 10,
+    width: 150, // 40% of the carousel/box width
+    height: 50, // half the height of the age container (100/2)
+    backgroundColor: 'white',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  profileBoxText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  profileText: {
+    fontSize: 12,
+    color: '#9AB206', // Only the "Profile" part
+  },
 });
-
-
-

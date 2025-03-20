@@ -1,20 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { 
-  AntDesign, 
-  Ionicons 
-} from '@expo/vector-icons';
-import { 
-  Button, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  Alert, 
-  Switch, 
-  Image, 
+import {
+  Button,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+  Switch,
+  Image,
   ScrollView,
-  Platform 
+  Platform
 } from 'react-native';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -52,7 +49,7 @@ export default function Camera() {
       const { assets } = await MediaLibrary.getAssetsAsync({
         first: 10,
         mediaType: 'photo',
-        sortBy: ['creationTime']
+        sortBy: ['creationTime'],
       });
 
       // Convert iOS "ph://" URIs to local file URIs
@@ -74,7 +71,7 @@ export default function Camera() {
         recentPhotos.push({
           uri: uriToUse,
           type: Math.random() > 0.5 ? 'label' : 'fruit',
-          orientation: Math.random() > 0.5 ? 'vertical' : 'horizontal'
+          orientation: Math.random() > 0.5 ? 'vertical' : 'horizontal',
         });
       }
 
@@ -105,7 +102,9 @@ export default function Camera() {
   }
 
   function toggleBoxOrientation() {
-    setBoxOrientation((current) => (current === 'vertical' ? 'horizontal' : 'vertical'));
+    setBoxOrientation((current) =>
+      current === 'vertical' ? 'horizontal' : 'vertical'
+    );
   }
 
   function toggleMode() {
@@ -120,13 +119,19 @@ export default function Camera() {
         exif: false,
       };
       const takenPhoto = await cameraRef.current.takePictureAsync(options);
-      
+
       // Define crop area based on guide box proportions
-      const guideBoxWidth = boxOrientation === 'vertical' ? takenPhoto.width * 0.8 : takenPhoto.width * 0.6;
-      const guideBoxHeight = boxOrientation === 'vertical' ? takenPhoto.height * 0.3 : takenPhoto.height * 0.5;
+      const guideBoxWidth =
+        boxOrientation === 'vertical'
+          ? takenPhoto.width * 0.8
+          : takenPhoto.width * 0.6;
+      const guideBoxHeight =
+        boxOrientation === 'vertical'
+          ? takenPhoto.height * 0.3
+          : takenPhoto.height * 0.5;
       const originX = (takenPhoto.width - guideBoxWidth) / 2;
       const originY = (takenPhoto.height - guideBoxHeight) / 2;
-      
+
       const croppedPhoto = await ImageManipulator.manipulateAsync(
         takenPhoto.uri,
         [
@@ -141,7 +146,7 @@ export default function Camera() {
         ],
         { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
       );
-      
+
       // Add orientation and photo type information to the photo object
       croppedPhoto.orientation = boxOrientation;
       croppedPhoto.type = isLabelMode ? 'label' : 'fruit';
@@ -162,11 +167,12 @@ export default function Camera() {
       try {
         // Use the processed URI if available, otherwise use the original URI
         const uriToSave = processedUri || photo.uri;
-        await MediaLibrary.createAssetAsync(uriToSave);
-        
+        // On iOS simulator, this will fail. Test on a real device.
+        await MediaLibrary.saveToLibraryAsync(uriToSave);
+
         // Add to capturedPhotos state for thumbnail display
         setCapturedPhotos((prev) => [photo, ...prev.slice(0, 2)]);
-        
+
         Alert.alert('Success', 'Photo saved to your gallery!');
         setPhoto(null); // Go back to camera view
       } catch (error) {
@@ -177,7 +183,7 @@ export default function Camera() {
   };
 
   const handleRetakePhoto = () => setPhoto(null);
-  
+
   const handleDeletePhoto = (index) => {
     setCapturedPhotos((prev) => prev.filter((_, i) => i !== index));
   };
@@ -219,11 +225,15 @@ export default function Camera() {
           </TouchableOpacity>
         </ScrollView>
       </View>
-      
+
       {/* Switch at bottom to match image */}
       <View style={styles.modeSelectorBottom}>
         <View style={styles.switchContainer}>
-          <Text style={[styles.switchLabel, isLabelMode ? styles.activeSwitchLabel : {}]}>Labels</Text>
+          <Text
+            style={[styles.switchLabel, isLabelMode ? styles.activeSwitchLabel : {}]}
+          >
+            Labels
+          </Text>
           <Switch
             trackColor={{ false: '#767577', true: '#81b0ff' }}
             thumbColor={isLabelMode ? '#f5dd4b' : '#f4f3f4'}
@@ -231,37 +241,44 @@ export default function Camera() {
             onValueChange={toggleMode}
             value={!isLabelMode} // Inverted because true = fruit mode
           />
-          <Text style={[styles.switchLabel, !isLabelMode ? styles.activeSwitchLabel : {}]}>Fruits</Text>
+          <Text
+            style={[styles.switchLabel, !isLabelMode ? styles.activeSwitchLabel : {}]}
+          >
+            Fruits
+          </Text>
         </View>
       </View>
-      
+
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         {/* Flash button */}
         <TouchableOpacity style={styles.flashButton}>
           <Ionicons name="flash-off" size={24} color="white" />
         </TouchableOpacity>
-        
+
         <View style={styles.overlay}>
           <View
             style={[
-              styles.guideBox, 
+              styles.guideBox,
               boxOrientation === 'horizontal' && styles.horizontalGuideBox,
               isLabelMode ? styles.labelGuideBox : styles.fruitGuideBox
             ]}
           />
         </View>
-        
+
         {/* Camera controls */}
         <View style={styles.cameraControlsContainer}>
           <TouchableOpacity style={styles.rotateButton} onPress={toggleCameraFacing}>
             <Ionicons name="camera-reverse" size={28} color="white" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.captureButton} onPress={handleTakePhoto}>
             <View style={styles.captureButtonInner} />
           </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.orientationButton} onPress={toggleBoxOrientation}>
+
+          <TouchableOpacity
+            style={styles.orientationButton}
+            onPress={toggleBoxOrientation}
+          >
             <Ionicons name="swap-horizontal" size={28} color="white" />
           </TouchableOpacity>
         </View>

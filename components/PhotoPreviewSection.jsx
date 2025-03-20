@@ -1,4 +1,3 @@
-// Theres a error in ios deleting pics
 import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, SafeAreaView, Image, StyleSheet, View, Dimensions, Platform } from 'react-native';
@@ -10,54 +9,47 @@ const PhotoPreviewSection = ({ photo, handleRetakePhoto, handleSavePhoto }) => {
   const [imageUri, setImageUri] = useState(null);
   const [processedUri, setProcessedUri] = useState(null);
   const isVertical = photo?.orientation === 'vertical';
-  
+
   useEffect(() => {
-    // Handle the photo URI to ensure it's in a format that can be displayed
+    // Process the photo URI to ensure it's in a format that can be displayed/saved
     const processPhotoUri = async () => {
       if (!photo || !photo.uri) return;
       
-      try {
-        // For iOS photo:// or ph:// URLs that might cause issues
-        if (Platform.OS === 'ios' && (photo.uri.startsWith('ph://') || photo.uri.startsWith('file://'))) {
-          // Create a local copy of the file to ensure it can be accessed
-          const fileName = `${Date.now()}.jpg`;
-          const newUri = `${FileSystem.documentDirectory}${fileName}`;
-          
-          try {
-            await FileSystem.copyAsync({
-              from: photo.uri,
-              to: newUri
-            });
-            console.log('Successfully copied file to:', newUri);
-            setImageUri(newUri);
-            setProcessedUri(newUri);
-          } catch (error) {
-            console.log('Error copying file:', error);
-            // Try to use the original URI as fallback
-            setImageUri(photo.uri);
-            setProcessedUri(null); // Don't set processed URI if copy failed
-          }
-        } else {
-          // For Android or other platforms, use the URI directly
+      // If the photo URI is already local (i.e. within FileSystem.documentDirectory), no need to copy
+      if (Platform.OS === 'ios' && !photo.uri.includes(FileSystem.documentDirectory) && photo.uri.startsWith('ph://')) {
+        const fileName = `${Date.now()}.jpg`;
+        const newUri = `${FileSystem.documentDirectory}${fileName}`;
+        
+        try {
+          await FileSystem.copyAsync({
+            from: photo.uri,
+            to: newUri
+          });
+          console.log('Successfully copied file to:', newUri);
+          setImageUri(newUri);
+          setProcessedUri(newUri);
+        } catch (error) {
+          console.log('Error copying file:', error);
+          // Use the original URI as a fallback if copying fails
           setImageUri(photo.uri);
           setProcessedUri(null);
         }
-      } catch (error) {
-        console.log('Error processing image URI:', error);
+      } else {
+        // For Android or if the URI is already local, use the URI directly
         setImageUri(photo.uri);
         setProcessedUri(null);
       }
     };
-    
+
     processPhotoUri();
-    
-    // Cleanup function to delete temporary files when component unmounts
+
+    // Cleanup: delete temporary file when component unmounts
     return () => {
       cleanupTemporaryFile();
     };
   }, [photo]);
-  
-  // Function to clean up temporary file
+
+  // Function to clean up the temporary file
   const cleanupTemporaryFile = async () => {
     if (processedUri && processedUri.startsWith(FileSystem.documentDirectory)) {
       try {
@@ -71,32 +63,32 @@ const PhotoPreviewSection = ({ photo, handleRetakePhoto, handleSavePhoto }) => {
       }
     }
   };
-  
-  // Handle retake by cleaning up processed URI first
+
+  // When retaking the photo, clean up temporary file first
   const onRetakePhoto = async () => {
     await cleanupTemporaryFile();
-    // After cleanup, call the parent's handleRetakePhoto
     handleRetakePhoto();
   };
-  
-  // Handle save photo with proper URI
+
+  // When saving the photo, use the processed URI (if available) or fallback to the original URI
   const onSavePhoto = () => {
-    // Use the processed URI if available, otherwise use the original photo URI
     const uriToSave = processedUri || photo.uri;
     handleSavePhoto(uriToSave);
   };
-  
-  // Don't render until we have a valid URI
+
+  // Only render once a valid image URI is available
   if (!imageUri) {
     return null;
   }
-  
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[
-        styles.imageWrapper,
-        isVertical ? styles.verticalWrapper : styles.horizontalWrapper
-      ]}>
+      <View
+        style={[
+          styles.imageWrapper,
+          isVertical ? styles.verticalWrapper : styles.horizontalWrapper
+        ]}
+      >
         <Image
           style={styles.image}
           source={{ uri: imageUri }}

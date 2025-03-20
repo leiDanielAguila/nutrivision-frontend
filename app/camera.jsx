@@ -118,8 +118,8 @@ export default function Camera() {
     }
   };
 
-  const handleSavePhoto = async () => {
-    if (photo && photo.uri) {
+  const handleSavePhoto = async (processedUri) => {
+    if (photo && (processedUri || photo.uri)) {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
@@ -129,7 +129,9 @@ export default function Camera() {
         return;
       }
       try {
-        await MediaLibrary.createAssetAsync(photo.uri);
+        // Use the processed URI if available, otherwise use the original URI
+        const uriToSave = processedUri || photo.uri;
+        await MediaLibrary.createAssetAsync(uriToSave);
         
         // Add to capturedPhotos state for thumbnail display
         setCapturedPhotos(prev => [photo, ...prev.slice(0, 2)]);
